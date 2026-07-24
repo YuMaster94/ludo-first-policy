@@ -12,6 +12,11 @@
 
   Les ancres #privacy, #terms et #rules sont référencées en dur par
   lib/core/legal_links.dart : ne pas les renommer sans changer ce fichier.
+  L'ancre #deletion est l'URL de suppression de compte exigée par la Play
+  Console (déclaration Data Safety, obligatoire dès qu'une méthode de connexion
+  par compte — OAuth/Google Sign-In — est déclarée) : elle doit rester en place
+  et pointer sur une procédure de suppression nommant l'app, sans quoi la fiche
+  est refusée.
 -->
 <html lang="en">
 <head>
@@ -128,6 +133,7 @@
     <p class="tagline">Privacy Policy · Terms of Service · Game Rules</p>
     <nav>
       <a href="#privacy">Privacy Policy</a>
+      <a href="#deletion">Account Deletion</a>
       <a href="#terms">Terms of Service</a>
       <a href="#rules">Game Rules</a>
     </nav>
@@ -227,9 +233,10 @@
   <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a> and we
   will delete the associated data.</p>
 
-  <h3>8. Deleting your data</h3>
-  <p>You can delete your account from <strong>Settings → Delete Account</strong> inside the
-  App. This is immediate and irreversible. It removes:</p>
+  <h3 id="deletion" style="scroll-margin-top:24px">8. Deleting your account and data</h3>
+  <p>To request deletion of your <strong>Ludo First</strong> account and its associated data,
+  open the app and go to <strong>Settings → Delete Account</strong>, then confirm. This is
+  immediate and irreversible. It removes:</p>
   <ul>
     <li>your public profile (nickname, avatar, flag);</li>
     <li>your wallet — coins, diamonds, XP and every cosmetic you own or bought;</li>
@@ -238,13 +245,19 @@
     <li>your pending friend requests, in both directions;</li>
     <li>any matchmaking queue entry.</li>
   </ul>
-  <p>Two things are deliberately retained and are <strong>not</strong> linked to a nickname:
-  moderation records (§6) and purchase records, the latter because they are what prevents the
-  same purchase being delivered twice and because tax and anti-fraud obligations require
-  them.</p>
-  <p>You may also write to
-  <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a> to
-  request deletion.</p>
+  <p>Two things are deliberately retained after deletion and are <strong>not</strong> linked to
+  your nickname:</p>
+  <ul>
+    <li><strong>Moderation records</strong> (§6) — kept for as long as needed to keep a
+    reported player from evading a sanction by deleting and recreating an account;</li>
+    <li><strong>Purchase records</strong> — kept because they are what prevents the same
+    purchase being delivered twice, and because tax and accounting law requires them; these are
+    retained for the period that law imposes (in the EU, up to 10 years for transaction
+    records).</li>
+  </ul>
+  <p>If you cannot access the in-app option, you may also write to
+  <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a> from any
+  address to request deletion of your Ludo First account.</p>
 
   <h3>9. Third-party services</h3>
   <div class="scroller">
