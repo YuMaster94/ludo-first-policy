@@ -145,7 +145,7 @@
 <section id="privacy">
   <h2>Privacy Policy</h2>
   <p class="meta">
-    Effective date: 22 July 2026 · Contact:
+    Effective date: 31 July 2026 · Contact:
     <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a>
   </p>
 
@@ -155,9 +155,15 @@
   Privacy questionnaire.</p>
 
   <h3>1. Identity and account</h3>
-  <p>The App signs you in <strong>anonymously</strong>. We never ask for, and never receive,
-  an email address, a phone number, a password, or a social login. What we hold is a randomly
-  generated Firebase user ID.</p>
+  <p>The App signs you in <strong>anonymously</strong>. We never ask for a password, and we
+  never receive a phone number. What we hold is a randomly generated Firebase user ID.</p>
+  <p>You may <strong>optionally</strong> link a Google account, from the Profile screen, so
+  that your progress survives a reinstall or a change of phone. Nothing is linked unless you
+  tap that tile. If you do, Google Sign-In gives Firebase Authentication the <strong>email
+  address</strong> of that account, and we hold it for that single purpose: recognising you as
+  the same player later. It is never shown to other players, never used to contact you, and
+  never shared. If you never link an account, no email address exists anywhere in our
+  systems.</p>
   <p>The only piece of information you write yourself is your <strong>nickname</strong>. It is
   visible to other players in lobbies, on the board, in quick chat and in friend requests, so
   please do not put personal information in it. Nicknames are screened automatically for
@@ -169,6 +175,7 @@
     <thead><tr><th>Data</th><th>Where it is stored</th><th>Why</th></tr></thead>
     <tbody>
       <tr><td>Anonymous user ID</td><td>Firestore, Realtime Database</td><td>Identifies you across games and devices</td></tr>
+      <tr><td>Email address — <strong>only if you link a Google account</strong></td><td>Firebase Authentication</td><td>Recovering your progress after a reinstall (see §1)</td></tr>
       <tr><td>Nickname, avatar choice, country flag</td><td>Firestore (public profile)</td><td>Shown to other players; friend search</td></tr>
       <tr><td>Coins, diamonds, XP, owned cosmetics</td><td>Firestore (server-side wallet)</td><td>Your game economy balance</td></tr>
       <tr><td>Match results (outcome, date, user ID)</td><td>Firestore (<code>match_history</code>)</td><td>Your history and your friends&rsquo; activity feed</td></tr>
@@ -178,8 +185,8 @@
       <tr><td>Reports you send or receive</td><td>Firestore (<code>chat_reports</code>)</td><td>Moderation and player safety (see §6)</td></tr>
       <tr><td>Purchase records (product, amount, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase and preventing double-delivery</td></tr>
       <tr><td>Crash reports, device model, OS version</td><td>Firebase Crashlytics</td><td>Diagnosing crashes</td></tr>
-      <tr><td>App-open events, ad interactions</td><td>Firebase Analytics, Google AdMob</td><td>Measuring usage and serving ads</td></tr>
-      <tr><td>Advertising ID (GAID / IDFA)</td><td>Google AdMob</td><td>Ads (see §5)</td></tr>
+      <tr><td>Usage events — <strong>only if you turn analytics on</strong></td><td>Firebase Analytics</td><td>Measuring usage (see §5)</td></tr>
+      <tr><td>Ad interactions, IP address (and the approximate region it implies), device and advertising identifiers, ad diagnostics</td><td>Google AdMob</td><td>Serving and measuring ads (see §5)</td></tr>
     </tbody>
   </table>
   </div>
@@ -188,9 +195,11 @@
   <ul>
     <li><strong>No free text.</strong> In-game chat sends only a fixed list of preset phrases.
     You cannot type a message, so no message content authored by you is transmitted.</li>
-    <li><strong>No photos.</strong> If you set a custom profile picture, the image is stored
-    <strong>only on your device</strong> and is never uploaded to our servers or shown to
-    other players.</li>
+    <li><strong>No photos.</strong> The App cannot access your gallery or camera. Your avatar
+    is chosen from a fixed illustrated set that ships with the App, and what travels is its
+    <strong>number</strong>, never an image. Earlier versions allowed a picture from your
+    gallery, kept on the device; that feature is gone, and the App erases any image left
+    behind by it on first launch.</li>
     <li><strong>No blocked-players list on our servers.</strong> The players you block are
     stored on your device only. Blocking is per-device: reinstalling the App or switching
     phones clears the list.</li>
@@ -206,15 +215,29 @@
   cannot be exchanged, transferred outside the App, or redeemed for real money.</p>
 
   <h3>5. Advertising and consent</h3>
-  <p>The App shows banner, interstitial and rewarded ads through <strong>Google AdMob</strong>,
-  which may use your device&rsquo;s advertising identifier.</p>
+  <p>The App shows banner, interstitial and rewarded ads through <strong>Google AdMob</strong>.
+  Serving an ad necessarily discloses your IP address to Google — and with it the approximate
+  region you are in — along with your device&rsquo;s advertising identifier and how you
+  interacted with the ad.</p>
   <ul>
     <li><strong>In the EEA, the UK and Switzerland</strong>, a Google-certified consent dialog
     (UMP) appears before any personalized ad is served. You can decline personalized ads and
-    still play the game normally.</li>
+    still play the game normally. If that dialog cannot be shown or is not completed,
+    <strong>no ad is requested at all</strong> — the App does not fall back to serving ads
+    without consent. Where the law requires a way back in, Settings shows an &ldquo;ad privacy
+    options&rdquo; row that reopens Google&rsquo;s form.</li>
     <li><strong>On iOS</strong>, the system App Tracking Transparency prompt asks for your
     permission before any tracking identifier is used. Declining is fully supported.</li>
   </ul>
+  <p><strong>Analytics is separate, and off by default.</strong> Firebase Analytics collection
+  is disabled in the App&rsquo;s own configuration and is only enabled if you turn it on in
+  Settings. The App sends no usage event before you do — including on first launch. The
+  advertising-related consent signals stay denied either way; AdMob relies on the UMP choice
+  above, not on this switch.</p>
+  <p><strong>Crash reporting cannot be turned off.</strong> Firebase Crashlytics is always
+  active and sends a crash report, your device model and your OS version when the App fails.
+  We treat this as necessary to keep the App working, which is why it is declared as required
+  rather than optional data.</p>
 
   <h3>6. Reporting and moderation</h3>
   <p>If you report a player, we record who reported whom, the room code, the preset message
@@ -222,8 +245,12 @@
   offenders.</p>
   <p>Because accounts are anonymous and therefore trivial to recreate, moderation records are
   <strong>kept even after an account is deleted</strong> — otherwise deleting an account would
-  erase any record of abusive behaviour. They contain identifiers and a preset phrase, never a
-  free-text message or contact details.</p>
+  erase any record of abusive behaviour.</p>
+  <p>Since they outlive the account, we keep them to the strict minimum: two anonymous user
+  IDs, a room code, one of the App&rsquo;s preset phrases, and a timestamp. <strong>No
+  nickname</strong> — it is the only text a player writes, and storing it here would have let
+  a personal detail survive a deletion this policy describes as complete. The server refuses
+  any report containing anything else.</p>
 
   <h3>7. Children</h3>
   <p>Ludo First is <strong>not directed at children under 13</strong> (under 16 in the EEA).
@@ -238,12 +265,22 @@
   open the app and go to <strong>Settings → Delete Account</strong>, then confirm. This is
   immediate and irreversible. It removes:</p>
   <ul>
-    <li>your public profile (nickname, avatar, flag);</li>
+    <li>your public profile (nickname, avatar, flag) and your friend code;</li>
     <li>your wallet — coins, diamonds, XP and every cosmetic you own or bought;</li>
     <li>your entire match history;</li>
     <li>your friends list, <strong>including the entry that other players hold for you</strong>;</li>
     <li>your pending friend requests, in both directions;</li>
-    <li>any matchmaking queue entry.</li>
+    <li>any matchmaking queue entry;</li>
+    <li>any coin stake held for you in a room;</li>
+    <li>your daily reward counters and your Lucky Wheel cooldown;</li>
+    <li>your online/offline presence record;</li>
+    <li>if you linked a Google account, the Firebase Authentication record holding its email
+    address — deleting the account deletes it too;</li>
+    <li><strong>everything the App stored on your phone</strong>: nickname, avatar, language,
+    blocked players, unlocked history, and any game saved for later. Because the App creates a
+    fresh anonymous account the next time you open it, this matters as much as the server
+    side — without it, the new account would inherit the identity of the one you just
+    deleted.</li>
   </ul>
   <p>Two things are deliberately retained after deletion and are <strong>not</strong> linked to
   your nickname:</p>
@@ -281,7 +318,7 @@
 
 <section id="terms">
   <h2>Terms of Service</h2>
-  <p class="meta">Effective date: 22 July 2026</p>
+  <p class="meta">Effective date: 31 July 2026</p>
 
   <h3>1. Acceptance</h3>
   <p>By downloading and using Ludo First you agree to these Terms. If you do not agree, do not
