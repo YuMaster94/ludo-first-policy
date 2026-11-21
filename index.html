@@ -6,9 +6,6 @@
   Elle est versionnée ICI parce que son contenu doit rester d'accord avec
   privacy_policy.md et avec ce que l'app fait réellement : c'est cette page-là
   que lit un relecteur Google Play ou Apple, pas le Markdown du dépôt privé.
-  La version précédemment en ligne était une politique générique de 5 sections
-  qui ne mentionnait ni AdMob, ni Crashlytics, ni les mises en pièces, ni la
-  rétention des signalements — autant d'écarts qu'un relecteur peut relever.
 
   Les ancres #privacy, #terms et #rules sont référencées en dur par
   lib/core/legal_links.dart : ne pas les renommer sans changer ce fichier.
@@ -145,7 +142,7 @@
 <section id="privacy">
   <h2>Privacy Policy</h2>
   <p class="meta">
-    Effective date: 31 July 2026 · Contact:
+    Effective date: 21 November 2026 · Contact:
     <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a>
   </p>
 
@@ -156,14 +153,17 @@
 
   <h3>1. Identity and account</h3>
   <p>The App signs you in <strong>anonymously</strong>. We never ask for a password, and we
-  never receive a phone number. What we hold is a randomly generated Firebase user ID.</p>
+  never receive a phone number. What we hold is a randomly generated Firebase user ID.
+  Anonymous guests can play all local modes and standard 1,000-coin public Online matches
+  immediately.</p>
   <p>You may <strong>optionally</strong> link a Google account, from the Profile screen, so
-  that your progress survives a reinstall or a change of phone. Nothing is linked unless you
-  tap that tile. If you do, Google Sign-In gives Firebase Authentication the <strong>email
-  address</strong> of that account, and we hold it for that single purpose: recognising you as
-  the same player later. It is never shown to other players, never used to contact you, and
-  never shared. If you never link an account, no email address exists anywhere in our
-  systems.</p>
+  that your progress survives a reinstall or a change of phone (and to unlock private Friends
+  rooms, Team Up 2v2, higher entry-fee Online tables, and a one-time account-link welcome
+  bonus). Nothing is linked unless you tap that action. If you do, Google Sign-In gives
+  Firebase Authentication the <strong>email address</strong> of that account, and we hold it
+  for that single purpose: recognising you as the same player later. It is never shown to
+  other players, never used to contact you, and never shared. If you never link an account,
+  no email address exists anywhere in our systems.</p>
   <p>The only piece of information you write yourself is your <strong>nickname</strong>. It is
   visible to other players in lobbies, on the board, in quick chat and in friend requests, so
   please do not put personal information in it. Nicknames are screened automatically for
@@ -176,14 +176,16 @@
     <tbody>
       <tr><td>Anonymous user ID</td><td>Firestore, Realtime Database</td><td>Identifies you across games and devices</td></tr>
       <tr><td>Email address — <strong>only if you link a Google account</strong></td><td>Firebase Authentication</td><td>Recovering your progress after a reinstall (see §1)</td></tr>
-      <tr><td>Nickname, avatar choice, country flag</td><td>Firestore (public profile)</td><td>Shown to other players; friend search</td></tr>
-      <tr><td>Coins, diamonds, XP, owned cosmetics</td><td>Firestore (server-side wallet)</td><td>Your game economy balance</td></tr>
-      <tr><td>Match results (outcome, date, user ID)</td><td>Firestore (<code>match_history</code>)</td><td>Your history and your friends&rsquo; activity feed</td></tr>
+      <tr><td>Nickname, avatar choice, frame choice, derived friend code</td><td>Firestore (<code>users</code>, minimal <code>friend_codes</code> lookup index)</td><td>Shown to other players; direct friend lookup by code</td></tr>
+      <tr><td>Coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP, owned cosmetics</td><td>Firestore (server-side wallet)</td><td>Your game economy balance and entitlements</td></tr>
+      <tr><td>Weekly login streak and daily reward counters</td><td>Firestore (<code>weekly/streak</code>, <code>reward_counters</code>)</td><td>Tracking your 7-day daily reward streak and daily bonus limits</td></tr>
+      <tr><td>Match results (outcome, date, user ID)</td><td>Firestore (<code>match_history</code>)</td><td>Your personal match history</td></tr>
       <tr><td>Friends list and friend requests</td><td>Firestore</td><td>The social features</td></tr>
-      <tr><td>Live game state and online/offline status</td><td>Realtime Database</td><td>Real-time multiplayer and presence dots</td></tr>
-      <tr><td>Quick chat messages</td><td>Realtime Database</td><td>In-game communication (see §3)</td></tr>
+      <tr><td>Live game state and in-room presence</td><td>Realtime Database</td><td>Real-time multiplayer sync and disconnect handling during matches</td></tr>
+      <tr><td>Quick chat presets, cosmetic emotes, and social throwables</td><td>Realtime Database (<code>/room_chat</code>)</td><td>In-game communication (see §3)</td></tr>
       <tr><td>Reports you send or receive</td><td>Firestore (<code>chat_reports</code>)</td><td>Moderation and player safety (see §6)</td></tr>
-      <tr><td>Purchase records (product, amount, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase and preventing double-delivery</td></tr>
+      <tr><td>Purchase records (store purchase token/order reference, product, amount, status, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase, preventing double-delivery, and reconciling refunds or chargebacks</td></tr>
+      <tr><td>App integrity attestation signals (Play Integrity)</td><td>Firebase App Check</td><td>Verifying that requests originate from an authentic app binary (anti-abuse / fraud prevention)</td></tr>
       <tr><td>Crash reports, device model, OS version</td><td>Firebase Crashlytics</td><td>Diagnosing crashes</td></tr>
       <tr><td>Usage events — <strong>only if you turn analytics on</strong></td><td>Firebase Analytics</td><td>Measuring usage (see §5)</td></tr>
       <tr><td>Ad interactions, IP address (and the approximate region it implies), device and advertising identifiers, ad diagnostics</td><td>Google AdMob</td><td>Serving and measuring ads (see §5)</td></tr>
@@ -193,29 +195,47 @@
 
   <h3>3. What we do NOT collect</h3>
   <ul>
-    <li><strong>No free text.</strong> In-game chat sends only a fixed list of preset phrases.
-    You cannot type a message, so no message content authored by you is transmitted.</li>
+    <li><strong>No free text.</strong> In-game chat sends only a fixed list of preset phrases,
+    cosmetic emote stickers, and lighthearted social animations (throwables). You cannot type
+    a message, so no message content authored by you is transmitted.</li>
+    <li><strong>No global online tracking.</strong> We do not publish a global online/offline
+    status dot across the app; presence is tracked only while you are actively inside a
+    multiplayer room.</li>
     <li><strong>No photos.</strong> The App cannot access your gallery or camera. Your avatar
-    is chosen from a fixed illustrated set that ships with the App, and what travels is its
-    <strong>number</strong>, never an image. Earlier versions allowed a picture from your
+    is chosen from a fixed illustrated cartoon set that ships with the App, and what travels is
+    its <strong>number</strong>, never an image. Earlier versions allowed a picture from your
     gallery, kept on the device; that feature is gone, and the App erases any image left
     behind by it on first launch.</li>
     <li><strong>No blocked-players list on our servers.</strong> The players you block are
     stored on your device only. Blocking is per-device: reinstalling the App or switching
     phones clears the list.</li>
     <li><strong>No location, contacts, calendar, microphone, camera roll scanning, or payment
-    details.</strong> Purchases are handled entirely by Google Play and the Apple App Store;
-    we never see your card, address or billing information.</li>
+    details.</strong> Purchases are handled entirely by Google Play Billing (and the Apple App
+    Store on iOS when released); we never see your card, address or billing information.</li>
   </ul>
 
   <h3>4. Purchases and virtual currency</h3>
-  <p>In-app purchases are processed by Google Play Billing or Apple&rsquo;s In-App Purchase
-  system. We receive only a product identifier, a purchase identifier and the resulting coin
-  amount. Coins, diamonds and cosmetic items are virtual goods with no monetary value: they
-  cannot be exchanged, transferred outside the App, or redeemed for real money.</p>
+  <p>On Android (V1), in-app purchases are processed by Google Play Billing. We receive a
+  store-issued purchase token or order reference, the product identifier, its delivery status
+  and the resulting virtual currency or entitlement (coins, diamonds, or No-Ads status). We
+  use that information to deliver the purchase once and to reconcile later refunds or
+  chargebacks. We never receive your card, billing address or other payment details.</p>
+  <p>Coins, diamonds, wheel spins, No-Ads status and cosmetic items are virtual goods with no
+  monetary value: they cannot be exchanged, transferred outside the App, or redeemed for real
+  money.</p>
+  <div class="callout">
+    <p><strong>Account binding of the No-Ads pack (<code>no_ads_starter</code>):</strong> The
+    non-consumable No-Ads pack is permanently bound to the Ludo First account that redeems it.
+    If you voluntarily delete your account, your No-Ads entitlement is permanently forfeited
+    and <strong>cannot be restored or re-claimed on a newly created account</strong> (see
+    <a href="#deletion">§8</a> and <a href="#terms">Terms of Service §3</a>).</p>
+  </div>
 
   <h3>5. Advertising and consent</h3>
-  <p>The App shows banner, interstitial and rewarded ads through <strong>Google AdMob</strong>.
+  <p>The App shows banner ads (on Shop, Inventory, and Social tabs), opt-in rewarded videos,
+  and spaced short interstitial ads (after offline matches and every 3–4 completed online
+  matches, never during gameplay, never on launch, and always suppressed when No-Ads is active
+  or within 3 minutes after watching a rewarded video) through <strong>Google AdMob</strong>.
   Serving an ad necessarily discloses your IP address to Google — and with it the approximate
   region you are in — along with your device&rsquo;s advertising identifier and how you
   interacted with the ad.</p>
@@ -226,8 +246,9 @@
     <strong>no ad is requested at all</strong> — the App does not fall back to serving ads
     without consent. Where the law requires a way back in, Settings shows an &ldquo;ad privacy
     options&rdquo; row that reopens Google&rsquo;s form.</li>
-    <li><strong>On iOS</strong>, the system App Tracking Transparency prompt asks for your
-    permission before any tracking identifier is used. Declining is fully supported.</li>
+    <li><strong>On iOS</strong> (when available), the system App Tracking Transparency prompt
+    asks for your permission before any tracking identifier is used. Declining is fully
+    supported.</li>
   </ul>
   <p><strong>Analytics is separate, and off by default.</strong> Firebase Analytics collection
   is disabled in the App&rsquo;s own configuration and is only enabled if you turn it on in
@@ -240,23 +261,23 @@
   rather than optional data.</p>
 
   <h3>6. Reporting and moderation</h3>
-  <p>If you report a player, we record who reported whom, the room code, the preset message
-  concerned and the time. These records are used only to review abuse and to act on repeat
-  offenders.</p>
+  <p>If you report a player, we record who reported whom, the room code, the preset message or
+  emote concerned and the time. These records are used only to review abuse and to act on
+  repeat offenders.</p>
   <p>Because accounts are anonymous and therefore trivial to recreate, moderation records are
   <strong>kept even after an account is deleted</strong> — otherwise deleting an account would
   erase any record of abusive behaviour.</p>
   <p>Since they outlive the account, we keep them to the strict minimum: two anonymous user
-  IDs, a room code, one of the App&rsquo;s preset phrases, and a timestamp. <strong>No
+  IDs, a room code, one of the App&rsquo;s preset phrases/emotes, and a timestamp. <strong>No
   nickname</strong> — it is the only text a player writes, and storing it here would have let
   a personal detail survive a deletion this policy describes as complete. The server refuses
   any report containing anything else.</p>
 
   <h3>7. Children</h3>
-  <p>Ludo First is <strong>not directed at children under 13</strong> (under 16 in the EEA).
-  The App contains in-app purchases and ads, and includes coin-stake matches played with
-  virtual currency. We do not knowingly collect data from children below these ages. If you
-  believe a child has used the App, contact us at
+  <p>Ludo First is intended for players aged <strong>13 and over</strong>, including the 13–15,
+  16–17 and adult age groups. The App contains in-app purchases and ads, and includes
+  competitive matches played with virtual-coin entry fees. We do not knowingly collect data
+  from children under 13. If you believe a child has used the App, contact us at
   <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a> and we
   will delete the associated data.</p>
 
@@ -265,32 +286,47 @@
   open the app and go to <strong>Settings → Delete Account</strong>, then confirm. This is
   immediate and irreversible. It removes:</p>
   <ul>
-    <li>your public profile (nickname, avatar, flag) and your friend code;</li>
-    <li>your wallet — coins, diamonds, XP and every cosmetic you own or bought;</li>
+    <li>your public profile (nickname, avatar, equipped frame) and your <code>friend_codes</code> lookup entry;</li>
+    <li>your wallet — coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP and every cosmetic you own or bought;</li>
     <li>your entire match history;</li>
     <li>your friends list, <strong>including the entry that other players hold for you</strong>;</li>
     <li>your pending friend requests, in both directions;</li>
     <li>any matchmaking queue entry;</li>
-    <li>any coin stake held for you in a room;</li>
-    <li>your daily reward counters and your Lucky Wheel cooldown;</li>
-    <li>your online/offline presence record;</li>
+    <li>any virtual-coin entry fee held for you in a waiting room (for an in-progress unsettled
+    match, the held entry fee is anonymized and detached from your user ID so the remaining
+    players&rsquo; match prize is preserved);</li>
+    <li>your weekly login streak (<code>weekly/streak</code>), daily reward counters and your Lucky Wheel cooldown;</li>
+    <li>your in-room presence records (along with a short-lived anti-replay deletion tombstone);</li>
     <li>if you linked a Google account, the Firebase Authentication record holding its email
     address — deleting the account deletes it too;</li>
-    <li><strong>everything the App stored on your phone</strong>: nickname, avatar, language,
-    blocked players, unlocked history, and any game saved for later. Because the App creates a
-    fresh anonymous account the next time you open it, this matters as much as the server
-    side — without it, the new account would inherit the identity of the one you just
-    deleted.</li>
+    <li><strong>everything the App stored on your phone</strong>: nickname, avatar, equipped
+    cosmetics, language, blocked players, unlocked history, and any offline game saved for
+    later. Because the App creates a fresh anonymous account the next time you open it, this
+    matters as much as the server side — without it, the new account would inherit the
+    identity of the one you just deleted.</li>
   </ul>
-  <p>Two things are deliberately retained after deletion and are <strong>not</strong> linked to
+  <div class="callout">
+    <p><strong>Permanent loss of the No-Ads pack (<code>no_ads_starter</code>):</strong>
+    Voluntarily deleting your account <strong>permanently forfeits</strong> your No-Ads
+    entitlement. Because the store purchase token remains permanently recorded against the
+    deleted account for anti-replay protection, the No-Ads pack <strong>cannot be restored or
+    transferred onto a new account</strong>.</p>
+  </div>
+  <p>Three categories are deliberately retained after deletion and are <strong>not</strong> linked to
   your nickname:</p>
   <ul>
     <li><strong>Moderation records</strong> (§6) — kept for as long as needed to keep a
     reported player from evading a sanction by deleting and recreating an account;</li>
-    <li><strong>Purchase records</strong> — kept because they are what prevents the same
-    purchase being delivered twice, and because tax and accounting law requires them; these are
-    retained for the period that law imposes (in the EU, up to 10 years for transaction
-    records).</li>
+    <li><strong>Purchase records</strong> — kept because they prevent the same purchase being
+    delivered twice (including re-claiming a deleted account&rsquo;s No-Ads pack), allow
+    refunds and chargebacks to be reconciled, and because tax and accounting law requires them;
+    these are retained for the period that law imposes (in the EU, up to 10 years for
+    transaction records).</li>
+    <li><strong>Advertising reward anti-replay records</strong> — deleting an account removes
+    the user ID from its reward records. Only transaction identifiers and a hashed
+    deletion marker remain for up to 30 days, to prevent a delayed advertising callback
+    from recreating deleted data. Active reward records also expire after 30 days.
+    Daily cleanup or Firestore TTL may add up to 24 hours.</li>
   </ul>
   <p>If you cannot access the in-app option, you may also write to
   <a href="mailto:firstmaster.studio@outlook.com">firstmaster.studio@outlook.com</a> from any
@@ -301,15 +337,16 @@
   <table>
     <thead><tr><th>Service</th><th>Provider</th><th>Policy</th></tr></thead>
     <tbody>
-      <tr><td>Authentication, Firestore, Realtime Database, Cloud Functions</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
+      <tr><td>Authentication, Firestore, Realtime Database, Cloud Functions, App Check (Play Integrity)</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
       <tr><td>Crashlytics, Analytics</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
       <tr><td>AdMob</td><td>Google</td><td><a href="https://policies.google.com/technologies/ads">policies.google.com/technologies/ads</a></td></tr>
-      <tr><td>In-app purchases</td><td>Google Play / Apple</td><td>Respective store policies</td></tr>
+      <tr><td>In-app purchases</td><td>Google Play</td><td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td></tr>
     </tbody>
   </table>
   </div>
-  <p>Data is stored in Google Cloud regions <code>eur3</code> (Europe) for Firestore and
-  <code>us-central1</code> (United States) for the Realtime Database.</p>
+  <p>All backend data and computation are hosted in the <strong>European Union</strong>: Google
+  Cloud region <code>eur3</code> (Europe multi-region) for Firestore and
+  <code>europe-west1</code> (Belgium, EU) for both the Realtime Database and Cloud Functions.</p>
 
   <h3>10. Changes</h3>
   <p>If this policy changes materially, the effective date above will be updated and the new
@@ -318,7 +355,7 @@
 
 <section id="terms">
   <h2>Terms of Service</h2>
-  <p class="meta">Effective date: 31 July 2026</p>
+  <p class="meta">Effective date: 21 November 2026</p>
 
   <h3>1. Acceptance</h3>
   <p>By downloading and using Ludo First you agree to these Terms. If you do not agree, do not
@@ -331,23 +368,29 @@
     <li>Do not use a nickname that is offensive, impersonates someone, or contains another
     person&rsquo;s personal information. Nicknames are screened automatically and may be
     reset.</li>
-    <li>Do not misuse quick chat to harass other players. Chat access, and in serious or
-    repeated cases the account, may be revoked.</li>
+    <li>Do not misuse quick chat or social interactions to harass other players. Chat access,
+    and in serious or repeated cases the account, may be revoked.</li>
   </ul>
 
-  <h3>3. Virtual goods and coin stakes</h3>
-  <p>Ludo First is free to play. Coins, diamonds, XP and cosmetic items are virtual goods with
-  <strong>no real-world value</strong>. They cannot be sold, transferred or redeemed for money
-  or anything of monetary value.</p>
+  <h3>3. Virtual goods, No-Ads entitlement and match entry fees</h3>
+  <p>Ludo First is free to play. Coins, diamonds, wheel spins, XP, No-Ads status and cosmetic
+  items (board themes, pawn skins, dice skins, avatar frames, and emote stickers) are virtual
+  goods with <strong>no real-world value</strong>. They cannot be sold, transferred or redeemed
+  for money or anything of monetary value.</p>
   <div class="callout">
-    <p>Some online matches use a coin stake: each player contributes virtual coins to a pot
-    that the winner receives. This is a game mechanic played entirely in virtual currency.
-    <strong>It is not gambling</strong>: no real money is ever staked, and no payout of any
-    kind can be withdrawn from the App.</p>
+    <p>Online matches use a competitive entry fee: each participant contributes virtual coins
+    toward a match prize awarded to the top finishers. This is a traditional board-game
+    competition mechanic played entirely in virtual currency. <strong>It is not
+    gambling</strong>: no real money is ever entered, there are no casino mechanics, and no
+    match prize or payout of any kind can be withdrawn from the App.</p>
   </div>
-  <p>Virtual goods are licensed to you for use in the App, not sold. They may be lost if your
-  account is deleted, and no refund is owed for unused virtual currency beyond what the
-  platform store&rsquo;s own refund policy provides.</p>
+  <p>Virtual goods and entitlements are licensed to you for use within the single Ludo First
+  account that acquires them, not sold. In particular, the non-consumable <strong>No-Ads pack
+  (<code>no_ads_starter</code>) is strictly bound to your current account</strong>: if you
+  voluntarily delete your account, your No-Ads status and all virtual goods are
+  <strong>permanently lost and cannot be restored onto a new account</strong>. No refund is
+  owed for unused virtual currency or forfeited entitlements beyond what the platform
+  store&rsquo;s own refund policy provides.</p>
 
   <h3>4. Availability</h3>
   <p>The App relies on network services that may be interrupted, changed or discontinued. We
@@ -368,34 +411,41 @@
   <h2>Game Rules</h2>
   <p class="meta">How Ludo First plays — the rules the game actually enforces.</p>
 
-  <h3>Goal</h3>
-  <p>Each player has four pawns starting in their yard. Bring all four of them around the
-  board and into your home column to win.</p>
-
-  <h3>Getting a pawn out</h3>
-  <p>You need to roll a <strong>6</strong> to move a pawn out of your yard and onto your
-  starting square. Rolling a 6 also earns you an extra roll.</p>
-
-  <h3>Moving</h3>
+  <h3>Goal &amp; variants</h3>
+  <p>In every variant, each player starts with <strong>four pawns in their yard</strong> and
+  races them around the board into their home column. Three variants are available:</p>
   <ul>
-    <li>Move one pawn by the number rolled. If no legal move exists, your turn passes.</li>
-    <li>Landing exactly on a square occupied by a single opposing pawn <strong>captures</strong>
-    it: that pawn goes back to its yard, and you get an extra turn.</li>
-    <li>Entering the home column requires an <strong>exact</strong> roll. Overshooting is not a
-    legal move.</li>
+    <li><strong>Normal</strong> — bring all <strong>four</strong> pawns home to finish.</li>
+    <li><strong>Quick (<code>rapide</code>)</strong> — bring <strong>one</strong> pawn home to
+    finish.</li>
+    <li><strong>Popular (<code>populaire</code>)</strong> — bring all <strong>four</strong>
+    pawns home, with <strong>tactical dice rerolls</strong>: after rolling, you may reroll the
+    die up to <strong>3 times per turn</strong> at progressive virtual diamond costs
+    (<strong>2 → 5 → 10 diamonds</strong> online; free in offline practice).</li>
+  </ul>
+
+  <h3>Getting a pawn out &amp; extra turns</h3>
+  <p>You need to roll a <strong>6</strong> to move a pawn out of your yard and onto your
+  starting square. Rolling a 6 always earns an extra roll — there is <strong>no three-sixes
+  penalty</strong> (consecutive 6s are unlimited). You also earn an extra turn whenever you
+  capture an opponent&rsquo;s pawn or bring one of your pawns all the way into the center
+  home finish.</p>
+
+  <h3>Moving &amp; capturing</h3>
+  <ul>
+    <li>Move one pawn by the number rolled. If no legal move exists, your turn passes (in
+    <strong>Popular</strong> mode, you get a short window to reroll before your turn passes).</li>
+    <li>Landing on a non-safe square occupied by opposing pawns <strong>captures all</strong>
+    opposing pawns on that square: they return to their yard, and you earn an extra turn.</li>
+    <li>Entering the home finish requires an <strong>exact</strong> roll and earns an extra
+    turn. Overshooting is not a legal move.</li>
   </ul>
 
   <h3>Safe squares</h3>
-  <p>Eight squares on the track are marked as safe. A pawn standing on one of them cannot be
-  captured, and neither can a pawn still in its yard or already in a home column.</p>
-
-  <h3>Blockades</h3>
-  <p>Two or more of your pawns on the same square form a blockade. Opposing pawns cannot pass
-  through or land on it.</p>
-
-  <h3>The three-sixes rule</h3>
-  <p>Rolling three 6s in a row forfeits your turn — the third 6 is void and play passes to the
-  next player.</p>
+  <p>Eight squares on the track are marked as safe — the four colored starting squares and four
+  star squares. Pawns standing on a safe square, in their yard, or in a home column cannot be
+  captured. There are <strong>no blockades</strong>: multiple pawns sharing a square never block
+  other pawns from landing on or passing through it.</p>
 
   <h3>Team Up (2v2)</h3>
   <ul>
@@ -403,14 +453,29 @@
     seats 2 &amp; 4 the other.</li>
     <li>There is <strong>no friendly fire</strong> — you cannot capture your teammate&rsquo;s
     pawns.</li>
-    <li>Teammates share blockades, and the team wins together.</li>
-    <li>A player whose four pawns are all home keeps playing, moving their teammate&rsquo;s
-    pawns.</li>
+    <li>The team wins together once both teammates have finished (or both opponents have
+    left).</li>
+    <li>Once your own required pawns are home, you keep taking turns moving your
+    teammate&rsquo;s pawns. In online 2v2, if a teammate leaves, their remaining pawns stay on
+    the board for you to move on your turn.</li>
   </ul>
 
-  <h3>Turn timer</h3>
-  <p>In online matches each turn is capped at 35 seconds. If it runs out, the game plays a move
-  for you so the match does not stall for everyone else.</p>
+  <h3>Friends Rematch &amp; in-game social interactions</h3>
+  <ul>
+    <li><strong>Friends Rematch</strong> — after a private Friends match concludes, remaining
+    players can tap <strong>Play Again Together</strong> to reset the same room and start a new
+    round immediately using the same 6-character room code.</li>
+    <li><strong>Quick chat &amp; throwables</strong> — players communicate through preset
+    phrases, animated cosmetic emote stickers, and lighthearted social throwables (tomato,
+    applause, egg, rose — 50 to 100 virtual coins, rate-limited) sent by tapping an
+    opponent&rsquo;s avatar.</li>
+  </ul>
+
+  <h3>Turn timer &amp; absences</h3>
+  <p>In online matches each turn is capped at <strong>35 seconds</strong>. If the timer expires,
+  the server plays a move automatically and records a missed turn. Reaching <strong>5 missed
+  turns</strong> (cumulative — playing later turns does not reset the count) removes the player
+  from the match instead of replacing them with a bot.</p>
 </section>
 
 <footer>
