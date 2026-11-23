@@ -233,9 +233,10 @@
 
   <h3>5. Advertising and consent</h3>
   <p>The App shows banner ads (on Shop, Inventory, and Social tabs), opt-in rewarded videos,
-  and spaced short interstitial ads (after offline matches and every 3–4 completed online
-  matches, never during gameplay, never on launch, and always suppressed when No-Ads is active
-  or within 3 minutes after watching a rewarded video) through <strong>Google AdMob</strong>.
+  and spaced short interstitial ads (after offline matches and every 3 completed online
+  matches, skipping the first 2, never during gameplay, never on launch, and always
+  suppressed when No-Ads is active or within 3 minutes after watching a rewarded video)
+  through <strong>Google AdMob</strong>.
   Serving an ad necessarily discloses your IP address to Google — and with it the approximate
   region you are in — along with your device&rsquo;s advertising identifier and how you
   interacted with the ad.</p>
@@ -265,8 +266,9 @@
   emote concerned and the time. These records are used only to review abuse and to act on
   repeat offenders.</p>
   <p>Because accounts are anonymous and therefore trivial to recreate, moderation records are
-  <strong>kept even after an account is deleted</strong> — otherwise deleting an account would
-  erase any record of abusive behaviour.</p>
+  <strong>kept for up to 90 days even after an account is deleted</strong> (and automatically
+  purged after 90 days via Firestore TTL, which may add up to 24 hours) — otherwise deleting
+  an account would immediately erase any record of abusive behaviour.</p>
   <p>Since they outlive the account, we keep them to the strict minimum: two anonymous user
   IDs, a room code, one of the App&rsquo;s preset phrases/emotes, and a timestamp. <strong>No
   nickname</strong> — it is the only text a player writes, and storing it here would have let
@@ -296,6 +298,7 @@
     match, the held entry fee is anonymized and detached from your user ID so the remaining
     players&rsquo; match prize is preserved);</li>
     <li>your weekly login streak (<code>weekly/streak</code>), daily reward counters and your Lucky Wheel cooldown;</li>
+    <li>your tactical dice reroll operation records (<code>reroll_ops</code>);</li>
     <li>your in-room presence records (along with a short-lived anti-replay deletion tombstone);</li>
     <li>if you linked a Google account, the Firebase Authentication record holding its email
     address — deleting the account deletes it too;</li>
@@ -315,8 +318,9 @@
   <p>Three categories are deliberately retained after deletion and are <strong>not</strong> linked to
   your nickname:</p>
   <ul>
-    <li><strong>Moderation records</strong> (§6) — kept for as long as needed to keep a
-    reported player from evading a sanction by deleting and recreating an account;</li>
+    <li><strong>Moderation records</strong> (§6) — kept for up to <strong>90 days</strong>
+    (automatically purged via Firestore TTL, + up to 24 hours) to keep a reported player from
+    evading a sanction by deleting and recreating an account;</li>
     <li><strong>Purchase records</strong> — kept because they prevent the same purchase being
     delivered twice (including re-claiming a deleted account&rsquo;s No-Ads pack), allow
     refunds and chargebacks to be reconciled, and because tax and accounting law requires them;
@@ -462,9 +466,9 @@
 
   <h3>Friends Rematch &amp; in-game social interactions</h3>
   <ul>
-    <li><strong>Friends Rematch</strong> — after a private Friends match concludes, remaining
-    players can tap <strong>Play Again Together</strong> to reset the same room and start a new
-    round immediately using the same 6-character room code.</li>
+    <li><strong>Private Room Rematch</strong> — after a private Friends or private Team Up
+    match concludes, players who wish to play again can tap <strong>Play Again Together</strong>
+    to opt back into the same room using the same 6-character room code.</li>
     <li><strong>Quick chat &amp; throwables</strong> — players communicate through preset
     phrases, animated cosmetic emote stickers, and lighthearted social throwables (tomato,
     applause, egg, rose — 50 to 100 virtual coins, rate-limited) sent by tapping an
