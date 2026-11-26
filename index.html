@@ -156,18 +156,22 @@
   never receive a phone number. What we hold is a randomly generated Firebase user ID.
   Anonymous guests can play all local modes and standard 1,000-coin public Online matches
   immediately.</p>
-  <p>You may <strong>optionally</strong> link a Google account, from the Profile screen, so
-  that your progress survives a reinstall or a change of phone (and to unlock private Friends
-  rooms, Team Up 2v2, higher entry-fee Online tables, and a one-time account-link welcome
-  bonus). Nothing is linked unless you tap that action. If you do, Google Sign-In gives
-  Firebase Authentication the <strong>email address</strong> of that account, and we hold it
+  <p>You may <strong>optionally</strong> link a Google account (or Apple ID on iOS via Sign in
+  with Apple), from the Profile or Settings screen, so that your progress survives a reinstall or
+  a change of phone (and to unlock private Friends rooms, Team Up 2v2, higher entry-fee Online
+  tables, and a one-time account-link welcome bonus). Nothing is linked unless you tap that
+  action. If you do, Google Sign-In or Sign in with Apple gives Firebase Authentication the
+  <strong>email address</strong> of that account (or Apple private relay address), and we hold it
   for that single purpose: recognising you as the same player later. It is never shown to
   other players, never used to contact you, and never shared. If you never link an account,
   no email address exists anywhere in our systems.</p>
   <p>The only piece of information you write yourself is your <strong>nickname</strong>. It is
   visible to other players in lobbies, on the board, in quick chat and in friend requests, so
   please do not put personal information in it. Nicknames are screened automatically for
-  offensive content before being saved.</p>
+  offensive content before being saved. You can also display a decorative <strong>country
+  flag</strong> next to your name (initialized once on first launch from your device&rsquo;s
+  system region setting without overwriting any manual choice, editable or resettable to the
+  neutral globe <code>🌐</code> at any time — never using GPS or IP geolocation).</p>
 
   <h3>2. What we collect</h3>
   <div class="scroller">
@@ -175,17 +179,17 @@
     <thead><tr><th>Data</th><th>Where it is stored</th><th>Why</th></tr></thead>
     <tbody>
       <tr><td>Anonymous user ID</td><td>Firestore, Realtime Database</td><td>Identifies you across games and devices</td></tr>
-      <tr><td>Email address — <strong>only if you link a Google account</strong></td><td>Firebase Authentication</td><td>Recovering your progress after a reinstall (see §1)</td></tr>
-      <tr><td>Nickname, avatar choice, frame choice, derived friend code</td><td>Firestore (<code>users</code>, minimal <code>friend_codes</code> lookup index)</td><td>Shown to other players; direct friend lookup by code</td></tr>
+      <tr><td>Email address — <strong>only if you link a Google or Apple account</strong></td><td>Firebase Authentication</td><td>Recovering your progress after a reinstall (see §1)</td></tr>
+      <tr><td>Nickname, avatar choice, frame choice, optional decorative country flag, derived friend code</td><td>Firestore (<code>users</code>, minimal <code>friend_codes</code> index without flag); Realtime Database (<code>/rooms/{code}/meta</code>)</td><td>Shown to other players; direct friend lookup by code; decorative flag synced from device region setting or manual selection (zero GPS/IP tracking)</td></tr>
       <tr><td>Coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP, owned cosmetics</td><td>Firestore (server-side wallet)</td><td>Your game economy balance and entitlements</td></tr>
       <tr><td>Weekly login streak and daily reward counters</td><td>Firestore (<code>weekly/streak</code>, <code>reward_counters</code>)</td><td>Tracking your 7-day daily reward streak and daily bonus limits</td></tr>
-      <tr><td>Match results (outcome, date, user ID)</td><td>Firestore (<code>match_history</code>)</td><td>Your personal match history</td></tr>
+      <tr><td>Recent match history (mode, variant, outcome, coin delta, captures, date; max 50 entries)</td><td><strong>On-device storage only</strong> (<code>match_history_v1</code>, zero cloud writes/reads)</td><td>Displaying your personal recent matches locally (older app versions stored <code>match_history</code> in Firestore, still deleted on account deletion)</td></tr>
       <tr><td>Friends list and friend requests</td><td>Firestore</td><td>The social features</td></tr>
       <tr><td>Live game state and in-room presence</td><td>Realtime Database</td><td>Real-time multiplayer sync and disconnect handling during matches</td></tr>
-      <tr><td>Quick chat presets, cosmetic emotes, and social throwables</td><td>Realtime Database (<code>/room_chat</code>)</td><td>In-game communication (see §3)</td></tr>
+      <tr><td>Quick chat presets, 10 cosmetic emotes, and 4 social throwables</td><td>Realtime Database (<code>/room_chat</code>)</td><td>In-game communication (see §3)</td></tr>
       <tr><td>Reports you send or receive</td><td>Firestore (<code>chat_reports</code>)</td><td>Moderation and player safety (see §6)</td></tr>
-      <tr><td>Purchase records (store purchase token/order reference, product, amount, status, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase, preventing double-delivery, and reconciling refunds or chargebacks</td></tr>
-      <tr><td>App integrity attestation signals (Play Integrity)</td><td>Firebase App Check</td><td>Verifying that requests originate from an authentic app binary (anti-abuse / fraud prevention)</td></tr>
+      <tr><td>Purchase records (store purchase token / order or StoreKit 2 transaction reference, product, amount, status, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase, preventing double-delivery, and reconciling refunds or chargebacks</td></tr>
+      <tr><td>App integrity attestation signals (Play Integrity on Android; App Attest on iOS)</td><td>Firebase App Check</td><td>Verifying that requests originate from an authentic app binary (anti-abuse / fraud prevention)</td></tr>
       <tr><td>Crash reports, device model, OS version</td><td>Firebase Crashlytics</td><td>Diagnosing crashes</td></tr>
       <tr><td>Usage events — <strong>only if you turn analytics on</strong></td><td>Firebase Analytics</td><td>Measuring usage (see §5)</td></tr>
       <tr><td>Ad interactions, IP address (and the approximate region it implies), device and advertising identifiers, ad diagnostics</td><td>Google AdMob</td><td>Serving and measuring ads (see §5)</td></tr>
@@ -195,12 +199,21 @@
 
   <h3>3. What we do NOT collect</h3>
   <ul>
-    <li><strong>No free text.</strong> In-game chat sends only a fixed list of preset phrases,
-    cosmetic emote stickers, and lighthearted social animations (throwables). You cannot type
-    a message, so no message content authored by you is transmitted.</li>
+    <li><strong>No free text.</strong> In-game chat sends only a fixed list of 8 preset phrases,
+    10 animated cosmetic emote stickers, and 4 lighthearted social animations (throwables). You
+    cannot type a message, so no message content authored by you is transmitted.</li>
+    <li><strong>No GPS or IP location tracking by the App.</strong> Ludo First never requests
+    location permissions and never uses GPS or your IP address to infer or track your location.
+    The decorative country flag option is pre-filled once at first launch from your
+    device&rsquo;s system region setting (or chosen manually by you, including the neutral
+    globe <code>🌐</code>). Separately, Google AdMob receives your IP address when serving ads
+    (see §5).</li>
     <li><strong>No global online tracking.</strong> We do not publish a global online/offline
     status dot across the app; presence is tracked only while you are actively inside a
     multiplayer room.</li>
+    <li><strong>No match history stored on our servers.</strong> In current versions, your last
+    50 matches are kept strictly on your phone (<code>match_history_v1</code>) with zero server
+    storage; deleting your account or uninstalling the App erases them.</li>
     <li><strong>No photos.</strong> The App cannot access your gallery or camera. Your avatar
     is chosen from a fixed illustrated cartoon set that ships with the App, and what travels is
     its <strong>number</strong>, never an image. Earlier versions allowed a picture from your
@@ -209,17 +222,19 @@
     <li><strong>No blocked-players list on our servers.</strong> The players you block are
     stored on your device only. Blocking is per-device: reinstalling the App or switching
     phones clears the list.</li>
-    <li><strong>No location, contacts, calendar, microphone, camera roll scanning, or payment
-    details.</strong> Purchases are handled entirely by Google Play Billing (and the Apple App
-    Store on iOS when released); we never see your card, address or billing information.</li>
+    <li><strong>No contacts, calendar, microphone, camera roll scanning, or payment
+    details.</strong> Purchases are handled entirely by Google Play Billing (on Android) and the
+    Apple App Store / StoreKit 2 (on iOS); we never see your card, address or billing
+    information.</li>
   </ul>
 
   <h3>4. Purchases and virtual currency</h3>
-  <p>On Android (V1), in-app purchases are processed by Google Play Billing. We receive a
-  store-issued purchase token or order reference, the product identifier, its delivery status
-  and the resulting virtual currency or entitlement (coins, diamonds, or No-Ads status). We
-  use that information to deliver the purchase once and to reconcile later refunds or
-  chargebacks. We never receive your card, billing address or other payment details.</p>
+  <p>In-app purchases are processed by Google Play Billing (on Android) and the Apple App Store /
+  StoreKit 2 (on iOS). We receive a store-issued purchase token or StoreKit transaction
+  identifier, the product identifier, its delivery status and the resulting virtual currency or
+  entitlement (coins, diamonds, or No-Ads status). We use that information to deliver the
+  purchase once and to reconcile later refunds, revocations or chargebacks. We never receive
+  your card, billing address or other payment details.</p>
   <p>Coins, diamonds, wheel spins, No-Ads status and cosmetic items are virtual goods with no
   monetary value: they cannot be exchanged, transferred outside the App, or redeemed for real
   money.</p>
@@ -232,11 +247,13 @@
   </div>
 
   <h3>5. Advertising and consent</h3>
-  <p>The App shows banner ads (on Shop, Inventory, and Social tabs), opt-in rewarded videos,
-  and spaced short interstitial ads (after offline matches and every 3 completed online
-  matches, skipping the first 2, never during gameplay, never on launch, and always
-  suppressed when No-Ads is active or within 3 minutes after watching a rewarded video)
-  through <strong>Google AdMob</strong>.
+  <p>The App shows banner ads (on Shop, Inventory, and Social tabs), opt-in rewarded videos
+  (such as the optional Home coins reward, low-balance rescue, daily wheel bonus/double,
+  weekly bonus, offline end bonus, and 24-hour full match history unlock — remaining optional
+  even when No-Ads is active), and spaced short interstitial ads (after offline matches and
+  every 3 completed online matches, skipping the first 2, never during gameplay, never on
+  launch, and always suppressed when No-Ads is active or within 3 minutes after watching a
+  rewarded video) through <strong>Google AdMob</strong>.
   Serving an ad necessarily discloses your IP address to Google — and with it the approximate
   region you are in — along with your device&rsquo;s advertising identifier and how you
   interacted with the ad.</p>
@@ -288,22 +305,24 @@
   open the app and go to <strong>Settings → Delete Account</strong>, then confirm. This is
   immediate and irreversible. It removes:</p>
   <ul>
-    <li>your public profile (nickname, avatar, equipped frame) and your <code>friend_codes</code> lookup entry;</li>
+    <li>your public profile (nickname, avatar, decorative country flag, equipped frame) and your <code>friend_codes</code> lookup entry;</li>
     <li>your wallet — coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP and every cosmetic you own or bought;</li>
-    <li>your entire match history;</li>
+    <li>any legacy server-side <code>match_history</code> records created by older versions of the App (current versions keep match history on-device only);</li>
     <li>your friends list, <strong>including the entry that other players hold for you</strong>;</li>
     <li>your pending friend requests, in both directions;</li>
     <li>any matchmaking queue entry;</li>
     <li>any virtual-coin entry fee held for you in a waiting room (for an in-progress unsettled
     match, the held entry fee is anonymized and detached from your user ID so the remaining
     players&rsquo; match prize is preserved);</li>
-    <li>your weekly login streak (<code>weekly/streak</code>), daily reward counters and your Lucky Wheel cooldown;</li>
+    <li>your weekly login streak (<code>weekly/streak</code>), daily reward counters and your Daily Bonus Wheel cooldown;</li>
     <li>your tactical dice reroll operation records (<code>reroll_ops</code>);</li>
     <li>your in-room presence records (along with a short-lived anti-replay deletion tombstone);</li>
-    <li>if you linked a Google account, the Firebase Authentication record holding its email
-    address — deleting the account deletes it too;</li>
-    <li><strong>everything the App stored on your phone</strong>: nickname, avatar, equipped
-    cosmetics, language, blocked players, unlocked history, and any offline game saved for
+    <li>if you linked a Google or Apple account, the Firebase Authentication record holding its
+    email address — and for <strong>Sign in with Apple</strong>, the App also revokes your Apple
+    authorization token;</li>
+    <li><strong>everything the App stored on your phone</strong>: nickname, avatar, country flag,
+    equipped cosmetics, language, blocked players, local match history
+    (<code>match_history_v1</code>), unlocked history state, and any offline game saved for
     later. Because the App creates a fresh anonymous account the next time you open it, this
     matters as much as the server side — without it, the new account would inherit the
     identity of the one you just deleted.</li>
@@ -341,10 +360,11 @@
   <table>
     <thead><tr><th>Service</th><th>Provider</th><th>Policy</th></tr></thead>
     <tbody>
-      <tr><td>Authentication, Firestore, Realtime Database, Cloud Functions, App Check (Play Integrity)</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
+      <tr><td>Authentication, Firestore, Realtime Database, Cloud Functions, App Check (Play Integrity / App Attest)</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
       <tr><td>Crashlytics, Analytics</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
       <tr><td>AdMob</td><td>Google</td><td><a href="https://policies.google.com/technologies/ads">policies.google.com/technologies/ads</a></td></tr>
-      <tr><td>In-app purchases</td><td>Google Play</td><td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td></tr>
+      <tr><td>In-app purchases (Android)</td><td>Google Play</td><td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td></tr>
+      <tr><td>Sign in with Apple &amp; App Store IAP (iOS)</td><td>Apple</td><td><a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a></td></tr>
     </tbody>
   </table>
   </div>
