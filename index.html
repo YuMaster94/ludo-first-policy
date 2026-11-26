@@ -182,16 +182,17 @@
       <tr><td>Email address — <strong>only if you link a Google or Apple account</strong></td><td>Firebase Authentication</td><td>Recovering your progress after a reinstall (see §1)</td></tr>
       <tr><td>Nickname, avatar choice, frame choice, optional decorative country flag, derived friend code</td><td>Firestore (<code>users</code>, minimal <code>friend_codes</code> index without flag); Realtime Database (<code>/rooms/{code}/meta</code>)</td><td>Shown to other players; direct friend lookup by code; decorative flag synced from device region setting or manual selection (zero GPS/IP tracking)</td></tr>
       <tr><td>Coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP, owned cosmetics</td><td>Firestore (server-side wallet)</td><td>Your game economy balance and entitlements</td></tr>
-      <tr><td>Weekly login streak and daily reward counters</td><td>Firestore (<code>weekly/streak</code>, <code>reward_counters</code>)</td><td>Tracking your 7-day daily reward streak and daily bonus limits</td></tr>
+      <tr><td>Weekly login streak, daily missions and daily reward counters</td><td>Firestore (<code>weekly/streak</code>, <code>daily_missions</code>, <code>reward_counters</code>)</td><td>Tracking your 7-day daily reward streak, daily mission progress (auto-purged after 14 days), and daily bonus limits</td></tr>
       <tr><td>Recent match history (mode, variant, outcome, coin delta, captures, date; max 50 entries)</td><td><strong>On-device storage only</strong> (<code>match_history_v1</code>, zero cloud writes/reads)</td><td>Displaying your personal recent matches locally (older app versions stored <code>match_history</code> in Firestore, still deleted on account deletion)</td></tr>
-      <tr><td>Friends list and friend requests</td><td>Firestore</td><td>The social features</td></tr>
+      <tr><td>Friends list, friend requests, and temporary private room invitations</td><td>Firestore (<code>friends</code>, <code>friend_requests</code>, <code>room_invites</code>)</td><td>The social features and 1-tap private room invites (room invites expire automatically after 24 hours)</td></tr>
+      <tr><td>Push notification token and language preference — <strong>optional, only while notifications are enabled</strong></td><td>Firestore (<code>users/{uid}/private/fcm</code>) &amp; Firebase Cloud Messaging</td><td>Delivering friend request and private room invite notifications when you opt in; deleted immediately if you disable notifications in Settings or delete your account</td></tr>
       <tr><td>Live game state and in-room presence</td><td>Realtime Database</td><td>Real-time multiplayer sync and disconnect handling during matches</td></tr>
       <tr><td>Quick chat presets, 10 cosmetic emotes, and 4 social throwables</td><td>Realtime Database (<code>/room_chat</code>)</td><td>In-game communication (see §3)</td></tr>
       <tr><td>Reports you send or receive</td><td>Firestore (<code>chat_reports</code>)</td><td>Moderation and player safety (see §6)</td></tr>
       <tr><td>Purchase records (store purchase token / order or StoreKit 2 transaction reference, product, amount, status, date)</td><td>Firestore (<code>processed_purchases</code>)</td><td>Delivering your purchase, preventing double-delivery, and reconciling refunds or chargebacks</td></tr>
       <tr><td>App integrity attestation signals (Play Integrity on Android; App Attest on iOS)</td><td>Firebase App Check</td><td>Verifying that requests originate from an authentic app binary (anti-abuse / fraud prevention)</td></tr>
       <tr><td>Crash reports, device model, OS version</td><td>Firebase Crashlytics</td><td>Diagnosing crashes</td></tr>
-      <tr><td>Usage events — <strong>only if you turn analytics on</strong></td><td>Firebase Analytics</td><td>Measuring usage (see §5)</td></tr>
+      <tr><td>Usage events (non-advertising, zero PII)</td><td>Firebase Analytics</td><td>Measuring first-party app usage and gameplay health after Privacy Policy acceptance (see §5)</td></tr>
       <tr><td>Ad interactions, IP address (and the approximate region it implies), device and advertising identifiers, ad diagnostics</td><td>Google AdMob</td><td>Serving and measuring ads (see §5)</td></tr>
     </tbody>
   </table>
@@ -248,7 +249,8 @@
 
   <h3>5. Advertising and consent</h3>
   <p>The App shows banner ads (on Shop, Inventory, and Social tabs), opt-in rewarded videos
-  (such as the optional Home coins reward, low-balance rescue, daily wheel bonus/double,
+  (such as the optional Home &amp; Shop coins reward, low-balance match entry rescue when your
+  balance is under 1,000 coins, daily wheel bonus/double,
   weekly bonus, offline end bonus, and 24-hour full match history unlock — remaining optional
   even when No-Ads is active), and spaced short interstitial ads (after offline matches and
   every 3 completed online matches, skipping the first 2, never during gameplay, never on
@@ -268,11 +270,14 @@
     asks for your permission before any tracking identifier is used. Declining is fully
     supported.</li>
   </ul>
-  <p><strong>Analytics is separate, and off by default.</strong> Firebase Analytics collection
-  is disabled in the App&rsquo;s own configuration and is only enabled if you turn it on in
-  Settings. The App sends no usage event before you do — including on first launch. The
-  advertising-related consent signals stay denied either way; AdMob relies on the UMP choice
-  above, not on this switch.</p>
+  <p><strong>First-party usage analytics activates upon accepting this Privacy Policy.</strong>
+  Firebase Analytics collection is disabled natively at launch until you accept this Privacy
+  Policy. Once accepted, non-advertising first-party usage analytics is enabled automatically
+  (with zero personal information such as your email or nickname, and with all advertising and
+  personalization consent signals — ad storage, ad user data, and ad personalization —
+  permanently kept denied; Google AdMob relies solely on your UMP consent choice above). Like
+  crash reporting, this first-party analytics has no separate Settings switch and is declared as
+  required data.</p>
   <p><strong>Crash reporting cannot be turned off.</strong> Firebase Crashlytics is always
   active and sends a crash report, your device model and your OS version when the App fails.
   We treat this as necessary to keep the App working, which is why it is declared as required
@@ -309,12 +314,13 @@
     <li>your wallet — coins, diamonds, wheel spins (<code>spins</code>), No-Ads status (<code>noAds</code>), XP and every cosmetic you own or bought;</li>
     <li>any legacy server-side <code>match_history</code> records created by older versions of the App (current versions keep match history on-device only);</li>
     <li>your friends list, <strong>including the entry that other players hold for you</strong>;</li>
-    <li>your pending friend requests, in both directions;</li>
+    <li>your pending friend requests and private room invitations (<code>room_invites</code>), in both directions;</li>
+    <li>your push notification registration token (<code>users/{uid}/private/fcm</code>) and any locally scheduled reminders;</li>
     <li>any matchmaking queue entry;</li>
     <li>any virtual-coin entry fee held for you in a waiting room (for an in-progress unsettled
     match, the held entry fee is anonymized and detached from your user ID so the remaining
     players&rsquo; match prize is preserved);</li>
-    <li>your weekly login streak (<code>weekly/streak</code>), daily reward counters and your Daily Bonus Wheel cooldown;</li>
+    <li>your weekly login streak (<code>weekly/streak</code>), daily mission progress (<code>daily_missions</code>), daily reward counters and your Daily Bonus Wheel cooldown;</li>
     <li>your tactical dice reroll operation records (<code>reroll_ops</code>);</li>
     <li>your in-room presence records (along with a short-lived anti-replay deletion tombstone);</li>
     <li>if you linked a Google or Apple account, the Firebase Authentication record holding its
@@ -361,7 +367,7 @@
     <thead><tr><th>Service</th><th>Provider</th><th>Policy</th></tr></thead>
     <tbody>
       <tr><td>Authentication, Firestore, Realtime Database, Cloud Functions, App Check (Play Integrity / App Attest)</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
-      <tr><td>Crashlytics, Analytics</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
+      <tr><td>Crashlytics, Analytics, Cloud Messaging (FCM — optional)</td><td>Google Firebase</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
       <tr><td>AdMob</td><td>Google</td><td><a href="https://policies.google.com/technologies/ads">policies.google.com/technologies/ads</a></td></tr>
       <tr><td>In-app purchases (Android)</td><td>Google Play</td><td><a href="https://policies.google.com/privacy">policies.google.com/privacy</a></td></tr>
       <tr><td>Sign in with Apple &amp; App Store IAP (iOS)</td><td>Apple</td><td><a href="https://www.apple.com/legal/privacy/">apple.com/legal/privacy</a></td></tr>
