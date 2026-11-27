@@ -240,11 +240,16 @@
   monetary value: they cannot be exchanged, transferred outside the App, or redeemed for real
   money.</p>
   <div class="callout">
-    <p><strong>Account binding of the No-Ads pack (<code>no_ads_starter</code>):</strong> The
-    non-consumable No-Ads pack is permanently bound to the Ludo First account that redeems it.
-    If you voluntarily delete your account, your No-Ads entitlement is permanently forfeited
-    and <strong>cannot be restored or re-claimed on a newly created account</strong> (see
-    <a href="#deletion">§8</a> and <a href="#terms">Terms of Service §3</a>).</p>
+    <p><strong>No-Ads pack (<code>no_ads_starter</code>) account binding &amp; restoration:</strong>
+    The non-consumable No-Ads pack is bound to one active Ludo First account at a time: sharing
+    the same store purchase simultaneously across two active accounts is blocked
+    (<code>already_claimed_other_account</code>). If you voluntarily delete your account, your
+    coins, diamonds, wheel spins, XP and cosmetics are permanently erased; however, the
+    <strong>No-Ads (<code>noAds</code>) status</strong> of a valid non-consumable
+    <code>no_ads_starter</code> purchase <strong>can be restored</strong> onto a new Ludo First
+    account using the same Google Play or Apple App Store account (without re-crediting the
+    initial 50,000 coins or 100 diamonds; see <a href="#deletion">§8</a> and
+    <a href="#terms">Terms of Service §3</a>).</p>
   </div>
 
   <h3>5. Advertising and consent</h3>
@@ -334,11 +339,13 @@
     identity of the one you just deleted.</li>
   </ul>
   <div class="callout">
-    <p><strong>Permanent loss of the No-Ads pack (<code>no_ads_starter</code>):</strong>
-    Voluntarily deleting your account <strong>permanently forfeits</strong> your No-Ads
-    entitlement. Because the store purchase token remains permanently recorded against the
-    deleted account for anti-replay protection, the No-Ads pack <strong>cannot be restored or
-    transferred onto a new account</strong>.</p>
+    <p><strong>No-Ads pack (<code>no_ads_starter</code>) after account deletion:</strong>
+    Voluntarily deleting your account permanently erases your coins, diamonds, wheel spins, XP
+    and every cosmetic you own. However, the <strong>No-Ads (<code>noAds</code>) status</strong>
+    of a valid non-consumable <code>no_ads_starter</code> purchase <strong>can be restored</strong>
+    onto a new account via the same Google Play or Apple App Store account (without re-crediting
+    the initial 50,000 coins or 100 diamonds). Sharing the same purchase simultaneously across
+    two active accounts remains blocked (<code>already_claimed_other_account</code>).</p>
   </div>
   <p>Three categories are deliberately retained after deletion and are <strong>not</strong> linked to
   your nickname:</p>
@@ -346,11 +353,12 @@
     <li><strong>Moderation records</strong> (§6) — kept for up to <strong>90 days</strong>
     (automatically purged via Firestore TTL, + up to 24 hours) to keep a reported player from
     evading a sanction by deleting and recreating an account;</li>
-    <li><strong>Purchase records</strong> — kept because they prevent the same purchase being
-    delivered twice (including re-claiming a deleted account&rsquo;s No-Ads pack), allow
-    refunds and chargebacks to be reconciled, and because tax and accounting law requires them;
-    these are retained for the period that law imposes (in the EU, up to 10 years for
-    transaction records).</li>
+    <li><strong>Purchase records</strong> — kept because they prevent consumable purchases or
+    the initial No-Ads coin/diamond bundle from being credited twice, prevent sharing an active
+    account&rsquo;s No-Ads pack on a second account, allow valid No-Ads status restoration after
+    prior account deletion, allow refunds and chargebacks to be reconciled, and because tax and
+    accounting law requires them; these are retained for the period that law imposes (in the EU,
+    up to 10 years for transaction records).</li>
     <li><strong>Advertising reward anti-replay records</strong> — deleting an account removes
     the user ID from its reward records. Only transaction identifiers and a hashed
     deletion marker remain for up to 30 days, to prevent a delayed advertising callback
@@ -414,13 +422,20 @@
     gambling</strong>: no real money is ever entered, there are no casino mechanics, and no
     match prize or payout of any kind can be withdrawn from the App.</p>
   </div>
-  <p>Virtual goods and entitlements are licensed to you for use within the single Ludo First
-  account that acquires them, not sold. In particular, the non-consumable <strong>No-Ads pack
-  (<code>no_ads_starter</code>) is strictly bound to your current account</strong>: if you
-  voluntarily delete your account, your No-Ads status and all virtual goods are
-  <strong>permanently lost and cannot be restored onto a new account</strong>. No refund is
-  owed for unused virtual currency or forfeited entitlements beyond what the platform
-  store&rsquo;s own refund policy provides.</p>
+  <p><strong>Public matchmaking &amp; automated opponents:</strong> In public matchmaking queues
+  (Online and public Team Up 2v2), if a room does not fill within the waiting window, Ludo First
+  may fill remaining open seats with automated AI opponents so matches start quickly and
+  smoothly.</p>
+  <p>Virtual goods and entitlements are licensed to you for use within one active Ludo First
+  account at a time, not sold. Sharing the same non-consumable <strong>No-Ads pack
+  (<code>no_ads_starter</code>)</strong> simultaneously across two active accounts is blocked
+  (<code>already_claimed_other_account</code>). If you voluntarily delete your account, your
+  coins, diamonds, wheel spins, XP and cosmetics are permanently deleted; however, the
+  <strong>No-Ads (<code>noAds</code>) status</strong> of a valid <code>no_ads_starter</code>
+  purchase <strong>can be restored</strong> onto a new account via the same Google Play or Apple
+  App Store account (without re-crediting the initial 50,000 coins or 100 diamonds). No refund
+  is owed for deleted virtual currency or items beyond what the platform store&rsquo;s own
+  refund policy provides.</p>
 
   <h3>4. Availability</h3>
   <p>The App relies on network services that may be interrupted, changed or discontinued. We
@@ -450,8 +465,9 @@
     finish.</li>
     <li><strong>Popular (<code>populaire</code>)</strong> — bring all <strong>four</strong>
     pawns home, with <strong>tactical dice rerolls</strong>: after rolling, you may reroll the
-    die up to <strong>3 times per turn</strong> at progressive virtual diamond costs
-    (<strong>2 → 5 → 10 diamonds</strong> online; free in offline practice).</li>
+    die up to <strong>3 times per turn</strong> — your <strong>1st tactical reroll is free every
+    match</strong>, followed by progressive virtual diamond costs (<strong>2 → 5 → 10
+    diamonds</strong> online; free in offline practice).</li>
   </ul>
 
   <h3>Getting a pawn out &amp; extra turns</h3>
@@ -501,7 +517,10 @@
     opponent&rsquo;s avatar.</li>
   </ul>
 
-  <h3>Turn timer &amp; absences</h3>
+  <h3>Public matchmaking, turn timer &amp; absences</h3>
+  <p>In public matchmaking queues (Online and public Team Up 2v2), if a room does not fill
+  within the waiting window, Ludo First may fill remaining open seats with automated AI
+  opponents so matches start quickly and smoothly.</p>
   <p>In online matches each turn is capped at <strong>35 seconds</strong>. If the timer expires,
   the server plays a move automatically and records a missed turn. Reaching <strong>5 missed
   turns</strong> (cumulative — playing later turns does not reset the count) removes the player
